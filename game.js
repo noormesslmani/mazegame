@@ -6,23 +6,39 @@ document.addEventListener("DOMContentLoaded", function(){
     const status = document.getElementById("status")
     const el = document.getElementsByClassName("example")
     var score=0
-    var loseflag= false
-    var winflag= false
+    var loseflag= false //boolean flag to avoid multi-scoring
+    var winflag= false //boolean flag to avoid multi-scoring
+    var cheat=false //indicates if the player cheated
 
-    el[0].textContent = "score = " + score;
+    el[0].textContent = "score = " + score //initialize score
+    
     /*************************/
-    var hoverEnd= function handleMouseOverEnd(){
-        if (status.textContent!="You Lose"){
+
+    //Check if mouse is coming from left side of the end to cheating!
+    //The mouse is supposed to come from the left side! 
+    // reference: https://stackoverflow.com/questions/15685708/determining-if-mouse-click-happened-in-left-or-right-half-of-div
+
+    var hoverEnd= function handleMouseOverEnd(event){
+        var width = end.offsetWidth;
+        var xCoordInClickTarget = event.clientX - end.getBoundingClientRect().left;
+        if(width / 2 > xCoordInClickTarget)
+        {  
+        if (status.textContent!="You Lose" && cheat==false){
             status.textContent="You Win" 
             if (winflag==false){
             score+=5
             el[0].textContent = "score = " + score}
-            winflag=true
+            winflag=true}
         }
-    } 
+        else{
+            cheat=true
+        }
+    }
+
 
     /*************************/
 
+    //A function which handles a mouse over the boundaries
     var hoverWalls= function handleMouseOverWalls(){
         if  (status.textContent!="You Win"){
             for (let i = 0; i< boundary.length; i++)
@@ -39,7 +55,9 @@ document.addEventListener("DOMContentLoaded", function(){
 
     /*************************/
 
+    //A function which handles mouse over the start button and starts the game
     var hoverStart= function handleMouseOverStart(){
+        cheat=false
         loseflag= false
         winflag=false
         status.textContent='Begin by moving your mouse over the "S".'
@@ -55,11 +73,15 @@ document.addEventListener("DOMContentLoaded", function(){
             boundary[j].onmouseover= hoverWalls
         }
 
-        end.onmouseover= hoverEnd
+        end.addEventListener("mouseover",hoverEnd);
     }
 
     /*************************/
+
+
     start.onmouseover= hoverStart
+
+    //reset the game on click on start
     start.onclick= function resetGame(){
         status.textContent='Begin by moving your mouse over the "S".'
         score=0
